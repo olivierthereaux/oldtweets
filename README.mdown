@@ -1,0 +1,36 @@
+# Oldtweets
+
+OldTweets backs up (and deletes, if you so desire) all your tweets beyond the latest 100.
+
+## Requirements
+
+This script will work if, and only if, you:
+
+1. Install python-twitter: [http://code.google.com/p/python-twitter/](http://code.google.com/p/python-twitter/) and dependencies
+2. go to [dev.twitter.com](http://dev.twitter.com), sign up with your account and create a new app (the details can be bogus, your app will be private)
+3. copy the consumer key and secret from your app in a credentials file
+4. go to "my access token" in the (righthand) menu of your app and copy the token and key in a credentials file (a credentials file is distributed with this script, as a sample. This file doesn't work)
+
+## Manual
+
+Run it to see the output
+
+    cat credentials | ./oldtweets.py 
+
+### Backup old tweets
+
+    cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt 
+
+your oldest tweets will be at the top of the file.
+
+###  Delete old tweets
+
+    cat credentials | ./oldtweets.py --delete
+
+### Backup and Delete
+
+    cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt 
+
+## Credits 
+
+Based on a script by David Larlet @davidbgk
