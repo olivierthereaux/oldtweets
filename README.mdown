@@ -31,6 +31,14 @@ your oldest tweets will be at the top of the file.
 
     cat credentials.txt | ./oldtweets.py --delete >> mytweetsbackupfile.txt 
 
+## Controlling how many tweets to ignore / keep in timeline 
+ 
+By default, the script will ignore the latests 200 tweets. 
+If you want to choose another number (will be rounded down to the closest hundred):
+
+    cat credentials | ./oldtweets.py --delete --keep=100 >> mytweetsbackupfile.txt 
+
+
 ## Credits 
 
 Based on a script by David Larlet (@davidbgk)

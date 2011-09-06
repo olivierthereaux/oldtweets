@@ -19,6 +19,7 @@ import time
 import twitter
 import sys
 import getopt
+import math
 
 
 help_message = '''
@@ -38,6 +39,10 @@ cat credentials | ./oldtweets.py --delete
 
 ** Want to backup and delete?
 cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt 
+
+** By default, the script will ignore the latests 200 tweets. Want to choose another number (will be rounded down to the closest hundred)
+cat credentials | ./oldtweets.py --delete --keep=100 >> mytweetsbackupfile.txt 
+
 '''
 
 
@@ -48,11 +53,12 @@ class Usage(Exception):
 
 def main(argv=None):
     option_delete = 0
+    keep_number = 200
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "h:v", ["delete", "help"])
+            opts, args = getopt.getopt(argv[1:], "h:v", ["delete", "help", "keep="])
         except getopt.error, msg:
             raise Usage(msg)
     
@@ -64,6 +70,11 @@ def main(argv=None):
                 raise Usage(help_message)
             if option == "--delete":
                 option_delete = 1
+            if option == "--keep":
+                try:
+                    keep_number = int(value)
+                except:
+                    raise Usage("Value of --keep must be a number. Ideally a multiple of 100")
 
     
     except Usage, err:
@@ -92,10 +103,10 @@ def main(argv=None):
         access_token_key=access_token_key, 
         access_token_secret=access_token_secret)
 
-
     tweets_ids = []
     tweets_len = 0 
-    for i in range(2, 32):
+    min_page = int(math.floor(keep_number/100))
+    for i in range(min_page, min_page+30): # limiting to approximately 3000 API calls...
         tweets_ids += [status.id for status in api.GetUserTimeline(page=i+1, count=100)]
         # print i, tweets_ids, len(tweets_ids)
         if tweets_len == len(tweets_ids): # haven't received anything new, we're at the end of the list. stop here
