@@ -117,8 +117,8 @@ def main(argv=None):
 
     # output tweets, delete on demand
     for tweet_id in tweets_ids[::-1]:
-        # verify
-        print "Tweet id: ", tweet_id, " --  Date: ", api.GetStatus(tweet_id).created_at, " || ", api.GetStatus(tweet_id).text.encode('utf-8')
+        status_object = api.GetStatus(tweet_id)
+        print "Tweet id: ", tweet_id, " --  Date: ", status_object.created_at, " || ", status_object.text.encode('utf-8')
         # delete
         if option_delete == 1:
             status = api.DestroyStatus(tweet_id)
