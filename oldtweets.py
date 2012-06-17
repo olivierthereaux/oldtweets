@@ -28,20 +28,20 @@ Based on a script by David Larlet @davidbgk
 
 
 ** run it to see the output
-cat credentials | ./oldtweets.py 
+cat credentials | ./oldtweets.py
 
 ** Want to backup?
-cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt 
+cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
 (your oldest tweets will be at the top)
 
 ** Want to delete old tweets?
 cat credentials | ./oldtweets.py --delete
 
 ** Want to backup and delete?
-cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt 
+cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt
 
 ** By default, the script will ignore the latests 200 tweets. Want to choose another number (will be rounded down to the closest hundred)
-cat credentials | ./oldtweets.py --delete --keep=100 >> mytweetsbackupfile.txt 
+cat credentials | ./oldtweets.py --delete --keep=100 >> mytweetsbackupfile.txt
 
 '''
 
@@ -61,11 +61,11 @@ def main(argv=None):
             opts, args = getopt.getopt(argv[1:], "h:v", ["delete", "help", "keep="])
         except getopt.error, msg:
             raise Usage(msg)
-    
+
         # option processing
         for option, value in opts:
-            if option == "-v":
-                verbose = True
+            # if option == "-v":
+            #     verbose = True
             if option in ("-h", "--help"):
                 raise Usage(help_message)
             if option == "--delete":
@@ -76,7 +76,6 @@ def main(argv=None):
                 except:
                     raise Usage("Value of --keep must be a number. Ideally a multiple of 100")
 
-    
     except Usage, err:
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
         print >> sys.stderr, "\t for help use --help"
@@ -98,18 +97,18 @@ def main(argv=None):
             if params[0] == "access_token_secret":
                 access_token_secret = params[1]
 
-    api = twitter.Api(consumer_key=consumer_key, 
-        consumer_secret=consumer_secret, 
-        access_token_key=access_token_key, 
+    api = twitter.Api(consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token_key=access_token_key,
         access_token_secret=access_token_secret)
 
     tweets_ids = []
-    tweets_len = 0 
-    min_page = int(math.floor(keep_number/100))
-    for i in range(min_page, min_page+30): # limiting to approximately 3000 API calls...
-        tweets_ids += [status.id for status in api.GetUserTimeline(page=i+1, count=100)]
+    tweets_len = 0
+    min_page = int(math.floor(keep_number / 100))
+    for i in range(min_page, min_page + 30):  # limiting to approximately 3000 API calls...
+        tweets_ids += [status.id for status in api.GetUserTimeline(page=i + 1, count=100)]
         # print i, tweets_ids, len(tweets_ids)
-        if tweets_len == len(tweets_ids): # haven't received anything new, we're at the end of the list. stop here
+        if tweets_len == len(tweets_ids):  # haven't received anything new, we're at the end of the list. stop here
             break
         else:
             tweets_len = len(tweets_ids)
@@ -129,5 +128,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
