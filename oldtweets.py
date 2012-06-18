@@ -113,7 +113,7 @@ def main(argv=None):
         else:
             tweets_len = len(tweets_ids)
             # wait a bit, throttled api - The API limits 350 calls per hours. so 1 call every 10.28 seconds
-            time.sleep(11)
+            time.sleep(30)
 
     # output tweets, delete on demand
     for tweet_id in tweets_ids[::-1]:
@@ -123,7 +123,7 @@ def main(argv=None):
         if option_delete == 1:
             status = api.DestroyStatus(tweet_id)
         # wait a bit, throttled api - The API limits 350 calls per hours. so 1 call every 10.28 seconds
-        time.sleep(11)
+        time.sleep(30)
 
 
 if __name__ == "__main__":
