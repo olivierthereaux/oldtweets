@@ -16,6 +16,7 @@ This script will work if, and only if, you:
 """
 
 import time
+import datetime
 import twitter
 import sys
 import getopt
@@ -23,25 +24,16 @@ import math
 
 
 help_message = '''
-oldtweets.py - backup or delete your older tweets
+oldtweets.py - backup and delete your tweets older than 4 weeks ago
 Based on a script by David Larlet @davidbgk
 
 
-** run it to see the output
-cat credentials | ./oldtweets.py
+** dry-run to see all tweets older than 4 weeks
+cat credentials | ./oldtweets.py --dry-run
 
-** Want to backup?
+** print and delete tweets older than 4 weeks
 cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
 (your oldest tweets will be at the top)
-
-** Want to delete old tweets?
-cat credentials | ./oldtweets.py --delete
-
-** Want to backup and delete?
-cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt
-
-** By default, the script will ignore the latests 200 tweets. Want to choose another number (will be rounded down to the closest hundred)
-cat credentials | ./oldtweets.py --delete --keep=100 >> mytweetsbackupfile.txt
 
 '''
 
@@ -52,29 +44,21 @@ class Usage(Exception):
 
 
 def main(argv=None):
-    option_delete = 0
-    keep_number = 200
+    option_delete = 1 #unless you use --dry-run, we're deleting
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "h:v", ["delete", "help", "keep="])
+            opts, args = getopt.getopt(argv[1:], "h", ["help", "dry-run"])
         except getopt.error, msg:
             raise Usage(msg)
 
         # option processing
         for option, value in opts:
-            # if option == "-v":
-            #     verbose = True
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == "--delete":
-                option_delete = 1
-            if option == "--keep":
-                try:
-                    keep_number = int(value)
-                except:
-                    raise Usage("Value of --keep must be a number. Ideally a multiple of 100")
+            if option == "--dry-run":
+                option_delete = 0
 
     except Usage, err:
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
@@ -102,28 +86,40 @@ def main(argv=None):
         access_token_key=access_token_key,
         access_token_secret=access_token_secret)
 
-    tweets_ids = []
-    tweets_len = 0
-    min_page = int(math.floor(keep_number / 100))
-    for i in range(min_page, min_page + 30):  # limiting to approximately 3000 API calls...
-        tweets_ids += [status.id for status in api.GetUserTimeline(page=i + 1, count=100)]
-        # print i, tweets_ids, len(tweets_ids)
-        if tweets_len == len(tweets_ids):  # haven't received anything new, we're at the end of the list. stop here
-            break
+    statuses = list()
+    latest_tweet = None
+    timeline_page = 0
+    thereismore = 1
+    
+    
+    # get all the tweets
+    while thereismore:
+        add_statuses = api.GetUserTimeline(count=200, page=timeline_page)
+        if len(add_statuses) > 0:
+            statuses = statuses + add_statuses
+            timeline_page = timeline_page+1
         else:
-            tweets_len = len(tweets_ids)
-            # wait a bit, throttled api - The API limits 350 calls per hours. so 1 call every 10.28 seconds
-            time.sleep(30)
+            thereismore = 0
+        time.sleep(1)
 
-    # output tweets, delete on demand
-    for tweet_id in tweets_ids[::-1]:
-        status_object = api.GetStatus(tweet_id)
-        print "Tweet id: ", tweet_id, " --  Date: ", status_object.created_at, " || ", status_object.text.encode('utf-8')
+    start_delete_at = None
+    
+    # discard tweets posted between now and 4 weeks ago
+    fourweeksago = datetime.date.today()-datetime.timedelta(28)
+    while start_delete_at == None:
+        status = statuses.pop(0)
+        status_created_at = datetime.datetime.strptime(status.created_at, "%a %b %d %H:%M:%S +0000 %Y")
+        if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
+            start_delete_at = status.id
+
+    for tweet in statuses[::-1]:
+        tweet_text = tweet.text
+        print "Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet.text.encode('utf-8')
         # delete
         if option_delete == 1:
-            status = api.DestroyStatus(tweet_id)
-        # wait a bit, throttled api - The API limits 350 calls per hours. so 1 call every 10.28 seconds
-        time.sleep(30)
+            status = api.DestroyStatus(tweet.id)
+            # wait a bit, throttled api.
+            time.sleep(2)
 
 
 if __name__ == "__main__":
