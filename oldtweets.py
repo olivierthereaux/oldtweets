@@ -28,12 +28,18 @@ oldtweets.py - backup and delete your tweets older than 4 weeks ago
 Based on a script by David Larlet @davidbgk
 
 
-** dry-run to see all tweets older than 4 weeks
-cat credentials | ./oldtweets.py --dry-run
+* dry-run to see all tweets older than 4 weeks
 
-** print and delete tweets older than 4 weeks
-cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
-(your oldest tweets will be at the top)
+    cat credentials | ./oldtweets.py --dry-run
+
+* print *and delete from twitter* tweets older than 4 weeks (your oldest tweets will be at the top)
+
+    cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
+
+* [FIXME] The tweets can still sometimes output in the wrong order, with some duplicates.
+
+    cat credentials | ./oldtweets.py | sort | uniq >> mytweetsbackupfile.txt
+
 
 '''
 
@@ -94,7 +100,7 @@ def main(argv=None):
     
     # get all the tweets
     while thereismore:
-        add_statuses = api.GetUserTimeline(count=200, page=timeline_page)
+        add_statuses = api.GetUserTimeline(count=200, include_rts=True, page=timeline_page)
         if len(add_statuses) > 0:
             statuses = statuses + add_statuses
             timeline_page = timeline_page+1
@@ -113,13 +119,19 @@ def main(argv=None):
             start_delete_at = status.id
 
     for tweet in statuses[::-1]:
-        tweet_text = tweet.text
-        print "Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet.text.encode('utf-8')
-        # delete
-        if option_delete == 1:
-            status = api.DestroyStatus(tweet.id)
-            # wait a bit, throttled api.
-            time.sleep(2)
+        status_created_at = datetime.datetime.strptime(tweet.created_at, "%a %b %d %H:%M:%S +0000 %Y")
+        # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
+        if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
+            tweet_text = tweet.text.replace('\n', '').replace('\r', '')
+            print "Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text.encode('utf-8')
+            # delete
+            if option_delete == 1:
+                try:
+                    status = api.DestroyStatus(tweet.id)
+                    # wait a bit, throttled api.
+                    time.sleep(2)
+                except Exception, e:
+                    pass
 
 
 if __name__ == "__main__":
