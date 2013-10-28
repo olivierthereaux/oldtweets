@@ -93,19 +93,27 @@ def main(argv=None):
         access_token_secret=access_token_secret)
 
     statuses = list()
-    latest_tweet = None
-    timeline_page = 0
-    thereismore = 1
-    
+    latest_tweet_id = None
+    get_more = True
     
     # get all the tweets
-    while thereismore:
-        add_statuses = api.GetUserTimeline(count=200, include_rts=True, page=timeline_page)
-        if len(add_statuses) > 0:
+    while get_more:
+        add_to_timeline = False
+        if latest_tweet_id:
+            add_statuses = api.GetUserTimeline(count=200, include_rts=True, max_id=latest_tweet_id)
+        else: 
+            add_statuses = api.GetUserTimeline(count=200, include_rts=True) 
+        if len(add_statuses) > 0 and len(statuses) == 0 : #tweets returned, we begin the list
+            add_to_timeline = True         
+        elif len(add_statuses) > 0 and (add_statuses[-1].id != statuses[-1].id): # tweets returned and it's not just the last one over and over again
+            add_to_timeline = True         
+        if add_to_timeline:
             statuses = statuses + add_statuses
-            timeline_page = timeline_page+1
+            latest_tweet_id = statuses[-1].id
         else:
-            thereismore = 0
+            get_more = 0
+            latest_tweet_id= None
+        print latest_tweet_id
         time.sleep(1)
 
     start_delete_at = None
