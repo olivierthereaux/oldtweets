@@ -56,7 +56,7 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "h", ["help", "dry-run"])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         # option processing
@@ -66,9 +66,9 @@ def main(argv=None):
             if option == "--dry-run":
                 option_delete = 0
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
-        print >> sys.stderr, "\t for help use --help"
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
+        print("\t for help use --help", file=sys.stderr)
         return 2
     consumer_key = ''
     consumer_secret = ''
@@ -113,7 +113,7 @@ def main(argv=None):
         else:
             get_more = 0
             latest_tweet_id= None
-        print latest_tweet_id
+        print(latest_tweet_id)
         time.sleep(1)
 
     start_delete_at = None
@@ -131,14 +131,14 @@ def main(argv=None):
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
         if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
             tweet_text = tweet.text.replace('\n', '').replace('\r', '')
-            print "Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text.encode('utf-8')
+            print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text.encode('utf-8'))
             # delete
             if option_delete == 1:
                 try:
                     status = api.DestroyStatus(tweet.id)
                     # wait a bit, throttled api.
                     time.sleep(2)
-                except Exception, e:
+                except Exception as e:
                     pass
 
 
