@@ -95,18 +95,18 @@ def main(argv=None):
     statuses = list()
     latest_tweet_id = None
     get_more = True
-    
+
     # get all the tweets
     while get_more:
         add_to_timeline = False
         if latest_tweet_id:
             add_statuses = api.GetUserTimeline(count=200, include_rts=True, max_id=latest_tweet_id)
-        else: 
-            add_statuses = api.GetUserTimeline(count=200, include_rts=True) 
+        else:
+            add_statuses = api.GetUserTimeline(count=200, include_rts=True)
         if len(add_statuses) > 0 and len(statuses) == 0 : #tweets returned, we begin the list
-            add_to_timeline = True         
+            add_to_timeline = True
         elif len(add_statuses) > 0 and (add_statuses[-1].id != statuses[-1].id): # tweets returned and it's not just the last one over and over again
-            add_to_timeline = True         
+            add_to_timeline = True
         if add_to_timeline:
             statuses = statuses + add_statuses
             latest_tweet_id = statuses[-1].id
@@ -117,7 +117,7 @@ def main(argv=None):
         time.sleep(1)
 
     start_delete_at = None
-    
+
     # discard tweets posted between now and 4 weeks ago
     fourweeksago = datetime.date.today()-datetime.timedelta(28)
     while start_delete_at == None:
@@ -130,8 +130,8 @@ def main(argv=None):
         status_created_at = datetime.datetime.strptime(tweet.created_at, "%a %b %d %H:%M:%S +0000 %Y")
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
         if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
-            tweet_text = tweet.text.replace('\n', '').replace('\r', '')
-            print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text.encode('utf-8'))
+            tweet_text = str(tweet.text).replace('\n', '').replace('\r', '')
+            print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
             # delete
             if option_delete == 1:
                 try:
