@@ -6,10 +6,11 @@ OldTweets backs up (and deletes, if you so desire) all your tweets beyond the la
 
 This script will work if, and only if, you:
 
-1. Install python-twitter: [https://github.com/bear/python-twitter](http://code.google.com/p/python-twitter/) and dependencies
-2. go to [dev.twitter.com](http://dev.twitter.com), sign up with your account and create a new app (the details can be bogus, your app will be private)
-3. copy the consumer key and secret from your app in a credentials file
-4. go to "my access token" in the (righthand) menu of your app and copy the token and key in a credentials file 
+1. Use Python3.
+2. Install python-twitter: [https://github.com/bear/python-twitter](http://code.google.com/p/python-twitter/) and dependencies
+3. go to [dev.twitter.com](http://dev.twitter.com), sign up with your account and create a new app (the details can be bogus, your app will be private)
+4. copy the consumer key and secret from your app in a credentials file
+5. go to "my access token" in the (righthand) menu of your app and copy the token and key in a credentials file 
 
 a credentials file is distributed with this script, as a sample. This file won't work so you *have to create your twitter app and copy your own credentials*.
 
@@ -19,15 +20,15 @@ Older versions had plenty of options. The latest version simplifies it greatly.
 
 * dry-run to see all tweets older than 4 weeks
 
-    cat credentials | ./oldtweets.py --dry-run
+    cat credentials.txt | ./oldtweets.py --dry-run
 
 * print *and delete from twitter* tweets older than 4 weeks (your oldest tweets will be at the top)
 
-    cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
+    cat credentials.txt | ./oldtweets.py >> mytweetsbackupfile.txt
 
 * [Bug] The tweets can still sometimes output in the wrong order, with some duplicates.
 
-    cat credentials | ./oldtweets.py | sort | uniq >> mytweetsbackupfile.txt
+    cat credentials.txt | ./oldtweets.py | sort | uniq >> mytweetsbackupfile.txt
 
 ## Credits 
 
