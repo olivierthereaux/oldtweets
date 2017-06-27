@@ -130,7 +130,7 @@ def main(argv=None):
         status_created_at = datetime.datetime.strptime(tweet.created_at, "%a %b %d %H:%M:%S +0000 %Y")
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
         if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
-            tweet_text = str(tweet.text).replace('\n', '').replace('\r', '')
+            tweet_text = tweet.text.encode('utf-8').strip()
             print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
             # delete
             if option_delete == 1:
