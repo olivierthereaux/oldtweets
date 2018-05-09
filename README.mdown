@@ -17,13 +17,13 @@ a credentials file is distributed with this script, as a sample. This file won't
 
 Older versions had plenty of options. The latest version simplifies it greatly.
 
-* dry-run to see all tweets older than 4 weeks
+* see all tweets older than 4 weeks
 
-    cat credentials | ./oldtweets.py --dry-run
+    cat credentials | ./oldtweets.py
 
 * print *and delete from twitter* tweets older than 4 weeks (your oldest tweets will be at the top)
 
-    cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
+    cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt
 
 * [Bug] The tweets can still sometimes output in the wrong order, with some duplicates.
 

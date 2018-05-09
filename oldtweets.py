@@ -28,13 +28,13 @@ oldtweets.py - backup and delete your tweets older than 4 weeks ago
 Based on a script by David Larlet @davidbgk
 
 
-* dry-run to see all tweets older than 4 weeks
+* see all tweets older than 4 weeks
 
-    cat credentials | ./oldtweets.py --dry-run
+    cat credentials | ./oldtweets.py
 
 * print *and delete from twitter* tweets older than 4 weeks (your oldest tweets will be at the top)
 
-    cat credentials | ./oldtweets.py >> mytweetsbackupfile.txt
+    cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt
 
 * [FIXME] The tweets can still sometimes output in the wrong order, with some duplicates.
 
@@ -50,12 +50,12 @@ class Usage(Exception):
 
 
 def main(argv=None):
-    option_delete = 1 #unless you use --dry-run, we're deleting
+    option_delete = False
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "h", ["help", "dry-run"])
+            opts, args = getopt.getopt(argv[1:], "h", ["help", "delete"])
         except getopt.error as msg:
             raise Usage(msg)
 
@@ -63,8 +63,8 @@ def main(argv=None):
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == "--dry-run":
-                option_delete = 0
+            if option == "--delete":
+                option_delete = True
 
     except Usage as err:
         print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
@@ -133,7 +133,7 @@ def main(argv=None):
             tweet_text = tweet.text.encode('utf-8').strip()
             print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
             # delete
-            if option_delete == 1:
+            if option_delete:
                 try:
                     status = api.DestroyStatus(tweet.id)
                     # wait a bit, throttled api.
