@@ -90,7 +90,8 @@ def main(argv=None):
     api = twitter.Api(consumer_key=consumer_key,
         consumer_secret=consumer_secret,
         access_token_key=access_token_key,
-        access_token_secret=access_token_secret)
+        access_token_secret=access_token_secret,
+        tweet_mode="extended")
 
     statuses = list()
     latest_tweet_id = None
@@ -130,7 +131,7 @@ def main(argv=None):
         status_created_at = datetime.datetime.strptime(tweet.created_at, "%a %b %d %H:%M:%S +0000 %Y")
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
         if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
-            tweet_text = tweet.text.encode('utf-8').strip()
+            tweet_text = (tweet.full_text if hasattr(tweet, "full_text") else tweet.text).encode('utf-8').strip()
             print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
             # delete
             if option_delete:
