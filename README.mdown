@@ -33,4 +33,4 @@ Older versions had plenty of options. The latest version simplifies it greatly.
 
 Based on a script by David Larlet (@davidbgk)
 
-Code, documentation and improvements contributed by Olivier Thereaux (@olivierthereaux), Karl Dubost (@karlpro), Florent Verschelde (@fvsch)
+Code, documentation and improvements contributed by Olivier Thereaux (@olivierthereaux), Karl Dubost (@karlpro), Florent Verschelde (@fvsch), and Steve Frécinaux (@nud)
