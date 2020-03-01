@@ -6,10 +6,11 @@ OldTweets backs up (and deletes, if you so desire) all your tweets beyond the la
 
 This script will work if, and only if, you:
 
-1. Install python-twitter: [https://github.com/bear/python-twitter](http://code.google.com/p/python-twitter/) and dependencies
-2. go to [dev.twitter.com](http://dev.twitter.com), sign up with your account and create a new app (the details can be bogus, your app will be private)
-3. copy the consumer key and secret from your app in a credentials file
-4. go to "my access token" in the (righthand) menu of your app and copy the token and key in a credentials file 
+1. Use python3
+2. Install python-twitter: [https://github.com/bear/python-twitter](http://code.google.com/p/python-twitter/) and dependencies (or run `pip install -Ur requirements.txt`)
+3. go to [dev.twitter.com](http://dev.twitter.com), sign up with your account and create a new app (the details can be bogus, your app will be private)
+4. copy the consumer key and secret from your app in a credentials file
+5. go to "my access token" in the (righthand) menu of your app and copy the token and key in a credentials file
 
 a credentials file is distributed with this script, as a sample. This file won't work so you *have to create your twitter app and copy your own credentials*.
 
@@ -29,7 +30,7 @@ Older versions had plenty of options. The latest version simplifies it greatly.
 
     cat credentials | ./oldtweets.py | sort | uniq >> mytweetsbackupfile.txt
 
-## Credits 
+## Credits
 
 Based on a script by David Larlet (@davidbgk)
 
