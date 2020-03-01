@@ -8,6 +8,7 @@ This script is a way to back up (and delete, if you so desire) all your tweets b
 This script will work if, and only if, you:
 
 1/ Install python-twitter: http://code.google.com/p/python-twitter/ and dependencies
+(or `pip install -Ur requirements.txt`)
 2/ go to dev.twitter.com, sign up with your account and create a new app (the details can be bogus, your app will be private)
 3/ copy the consumer key and secret from your app in a credentials file
 4/ go to "my access token" in the (righthand) menu of your app and copy the token and key in a credentials file
