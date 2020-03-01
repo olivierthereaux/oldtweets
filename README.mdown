@@ -22,13 +22,22 @@ Older versions had plenty of options. The latest version simplifies it greatly.
 
     cat credentials | ./oldtweets.py
 
-* print *and delete from twitter* tweets older than 4 weeks (your oldest tweets will be at the top)
+* see all _liked_ tweets older than 4 weeks
+
+    cat credentials | ./oldtweets.py --likes
+
+* print *and delete from twitter* tweets older than 4 weeks (oldest at the top)
 
     cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt
 
-* [Bug] The tweets can still sometimes output in the wrong order, with some duplicates.
+* print *and un-like* liked tweets older than 4 weeks
+
+    cat credentials | ./oldtweets.py --delete --likes
+
+* [FIXME] The tweets can still sometimes output in the wrong order, with some duplicates.
 
     cat credentials | ./oldtweets.py | sort | uniq >> mytweetsbackupfile.txt
+
 
 ## Credits
 

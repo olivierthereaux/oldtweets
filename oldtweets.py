@@ -33,9 +33,17 @@ Based on a script by David Larlet @davidbgk
 
     cat credentials | ./oldtweets.py
 
-* print *and delete from twitter* tweets older than 4 weeks (your oldest tweets will be at the top)
+* see all _liked_ tweets older than 4 weeks
+
+    cat credentials | ./oldtweets.py --likes
+
+* print *and delete from twitter* tweets older than 4 weeks (oldest at the top)
 
     cat credentials | ./oldtweets.py --delete >> mytweetsbackupfile.txt
+
+* print *and un-like* liked tweets older than 4 weeks
+
+    cat credentials | ./oldtweets.py --delete --likes
 
 * [FIXME] The tweets can still sometimes output in the wrong order, with some duplicates.
 
@@ -52,11 +60,12 @@ class Usage(Exception):
 
 def main(argv=None):
     option_delete = False
+    option_likes = False
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "h", ["help", "delete"])
+            opts, args = getopt.getopt(argv[1:], "h", ["help", "delete", "likes"])
         except getopt.error as msg:
             raise Usage(msg)
 
@@ -66,6 +75,8 @@ def main(argv=None):
                 raise Usage(help_message)
             if option == "--delete":
                 option_delete = True
+            if option == "--likes":
+                option_likes = True
 
     except Usage as err:
         print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
@@ -101,10 +112,16 @@ def main(argv=None):
     # get all the tweets
     while get_more:
         add_to_timeline = False
-        if latest_tweet_id:
-            add_statuses = api.GetUserTimeline(count=200, include_rts=True, max_id=latest_tweet_id)
+        if option_likes:
+            if latest_tweet_id:
+                add_statuses = api.GetFavorites(count=200, max_id=latest_tweet_id)
+            else:
+                add_statuses = api.GetFavorites(count=200)
         else:
-            add_statuses = api.GetUserTimeline(count=200, include_rts=True)
+            if latest_tweet_id:
+                add_statuses = api.GetFavorites(count=200, include_rts=True, max_id=latest_tweet_id)
+            else:
+                add_statuses = api.GetUserTimeline(count=200, include_rts=True)
         if len(add_statuses) > 0 and len(statuses) == 0 : #tweets returned, we begin the list
             add_to_timeline = True
         elif len(add_statuses) > 0 and (add_statuses[-1].id != statuses[-1].id): # tweets returned and it's not just the last one over and over again
@@ -133,15 +150,26 @@ def main(argv=None):
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
         if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
             tweet_text = (tweet.full_text if hasattr(tweet, "full_text") else tweet.text).encode('utf-8').strip()
-            print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
+            if option_likes:
+                print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
+            else:
+                print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
             # delete
             if option_delete:
-                try:
-                    status = api.DestroyStatus(tweet.id)
-                    # wait a bit, throttled api.
-                    time.sleep(2)
-                except Exception as e:
-                    pass
+                if option_likes:
+                    try:
+                        status = api.DestroyFavorite(status_id=tweet.id)
+                        # wait a bit, throttled api.
+                        time.sleep(2)
+                    except Exception as e:
+                        pass
+                else:
+                    try:
+                        status = api.DestroyStatus(tweet.id)
+                        # wait a bit, throttled api.
+                        time.sleep(2)
+                    except Exception as e:
+                        pass
 
 
 if __name__ == "__main__":
