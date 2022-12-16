@@ -137,13 +137,13 @@ def main(argv=None):
     while start_delete_at == None:
         status = statuses.pop(0)
         status_created_at = datetime.datetime.strptime(status.created_at, "%a %b %d %H:%M:%S +0000 %Y")
-        if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
+        if status_created_at.date() < fourweeksago:
             start_delete_at = status.id
 
     for tweet in statuses[::-1]:
         status_created_at = datetime.datetime.strptime(tweet.created_at, "%a %b %d %H:%M:%S +0000 %Y")
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
-        if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
+        if status_created_at.date() < fourweeksago:
             tweet_text = (tweet.full_text if hasattr(tweet, "full_text") else tweet.text).encode('utf-8').strip()
             if option_likes:
                 print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
