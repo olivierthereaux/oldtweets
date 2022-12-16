@@ -113,15 +113,10 @@ def main(argv=None):
     while get_more:
         add_to_timeline = False
         if option_likes:
-            if latest_tweet_id:
-                add_statuses = api.GetFavorites(count=200, max_id=latest_tweet_id)
-            else:
-                add_statuses = api.GetFavorites(count=200)
+            add_statuses = api.GetFavorites(count=200, max_id=latest_tweet_id)
         else:
-            if latest_tweet_id:
-                add_statuses = api.GetFavorites(count=200, include_rts=True, max_id=latest_tweet_id)
-            else:
-                add_statuses = api.GetUserTimeline(count=200, include_rts=True)
+            add_statuses = api.GetUserTimeline(count=200, include_rts=True, max_id=latest_tweet_id)
+
         if len(add_statuses) > 0 and len(statuses) == 0 : #tweets returned, we begin the list
             add_to_timeline = True
         elif len(add_statuses) > 0 and (add_statuses[-1].id != statuses[-1].id): # tweets returned and it's not just the last one over and over again
