@@ -113,15 +113,10 @@ def main(argv=None):
     while get_more:
         add_to_timeline = False
         if option_likes:
-            if latest_tweet_id:
-                add_statuses = api.GetFavorites(count=200, max_id=latest_tweet_id)
-            else:
-                add_statuses = api.GetFavorites(count=200)
+            add_statuses = api.GetFavorites(count=200, max_id=latest_tweet_id)
         else:
-            if latest_tweet_id:
-                add_statuses = api.GetFavorites(count=200, include_rts=True, max_id=latest_tweet_id)
-            else:
-                add_statuses = api.GetUserTimeline(count=200, include_rts=True)
+            add_statuses = api.GetUserTimeline(count=200, include_rts=True, max_id=latest_tweet_id)
+
         if len(add_statuses) > 0 and len(statuses) == 0 : #tweets returned, we begin the list
             add_to_timeline = True
         elif len(add_statuses) > 0 and (add_statuses[-1].id != statuses[-1].id): # tweets returned and it's not just the last one over and over again
@@ -142,13 +137,13 @@ def main(argv=None):
     while start_delete_at == None:
         status = statuses.pop(0)
         status_created_at = datetime.datetime.strptime(status.created_at, "%a %b %d %H:%M:%S +0000 %Y")
-        if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
+        if status_created_at.date() < fourweeksago:
             start_delete_at = status.id
 
     for tweet in statuses[::-1]:
         status_created_at = datetime.datetime.strptime(tweet.created_at, "%a %b %d %H:%M:%S +0000 %Y")
         # [FIXME] Making sure not to delete new stuff, which for some odd reason seems to be necessary
-        if datetime.date(status_created_at.year, status_created_at.month, status_created_at.day) < fourweeksago:
+        if status_created_at.date() < fourweeksago:
             tweet_text = (tweet.full_text if hasattr(tweet, "full_text") else tweet.text).encode('utf-8').strip()
             if option_likes:
                 print("Tweet id: ", tweet.id, " --  Date: ", tweet.created_at, " || ", tweet_text)
